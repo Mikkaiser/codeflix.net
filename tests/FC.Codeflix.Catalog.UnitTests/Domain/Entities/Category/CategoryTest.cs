@@ -1,32 +1,42 @@
 ﻿using FC.Codeflix.Catalog.Domain.Exceptions;
-using System.Xml.Linq;
+using FluentAssertions;
 using Xunit;
 using DomainEntity = FC.Codeflix.Catalog.Domain.Entity;
 namespace FC.Codeflix.Catalog.UnitTests.Domain.Entities.Category;
 
+[Collection(nameof(CategoryTestFixture))]
 public class CategoryTest
 {
+
+    private readonly CategoryTestFixture _categoryTestFixture;
+
+    public CategoryTest(CategoryTestFixture categoryTestFixture)
+    {
+        _categoryTestFixture = categoryTestFixture;
+    }
+
     [Fact(DisplayName = nameof(Instantiate))]
     [Trait("Domain", "Category - Aggregates")]
     public void Instantiate()
     {
         //Arrange
-        var validData = new {
-            Name = "Category Name", 
-            Description = "Category Description",
-        };
+        //Applying the Fixture Pattern
+        var validCategory = _categoryTestFixture.GetValidCategory();
         var datetimeBefore = DateTime.Now;
 
         //Act
-        var category = new DomainEntity.Category(validData.Name, validData.Description);
+        var category = new DomainEntity.Category(validCategory.Name, validCategory.Description);
         var datetimeAfter = DateTime.Now;
 
         //Assert
-        Assert.NotNull(category);
-        Assert.Equal(validData.Name, category.Name);
-        Assert.Equal(validData.Description, category.Description);
-        Assert.NotEqual(default(Guid), category.Id);
-        Assert.NotEqual(default(DateTime), category.CreatedAt);
+
+        //Refactoring - fluent assertions
+        category.Should().NotBeNull();
+        category.Name.Should().Be(validCategory.Name);
+        category.Description.Should().Be(validCategory.Description);
+        category.Id.Should().NotBeEmpty();
+        category.CreatedAt.Should().NotBeSameDateAs(default(DateTime));
+
         Assert.True(category.CreatedAt > datetimeBefore);
         Assert.True(category.CreatedAt < datetimeAfter);
         Assert.True(category.IsActive);
@@ -39,21 +49,19 @@ public class CategoryTest
     public void InstantiateWithIsActive(bool IsActive)
     {
         //Arrange
-        var validData = new
-        {
-            Name = "Category Name",
-            Description = "Category Description",
-        };
+        //Using fixture
+        var validCategory = _categoryTestFixture.GetValidCategory();
+
         var datetimeBefore = DateTime.Now;
 
         //Act
-        var category = new DomainEntity.Category(validData.Name, validData.Description, IsActive);
+        var category = new DomainEntity.Category(validCategory.Name, validCategory.Description, IsActive);
         var datetimeAfter = DateTime.Now;
 
         //Assert
         Assert.NotNull(category);
-        Assert.Equal(validData.Name, category.Name);
-        Assert.Equal(validData.Description, category.Description);
+        Assert.Equal(validCategory.Name, category.Name);
+        Assert.Equal(validCategory.Description, category.Description);
         Assert.NotEqual(default(Guid), category.Id);
         Assert.NotEqual(default(DateTime), category.CreatedAt);
         Assert.True(category.CreatedAt > datetimeBefore);
@@ -68,7 +76,9 @@ public class CategoryTest
     [InlineData("   ")]
     public void InstantiateErrorWhenNameIsEmpty(string? name)
     {
-        Action action = () => new DomainEntity.Category(name!, "Category Description");
+        DomainEntity.Category validCategory = _categoryTestFixture.GetValidCategory();
+
+        Action action = () => new DomainEntity.Category(name!, validCategory.Description);
         var exception = Assert.Throws<EntityValidationException>(action);
         Assert.Equal("Name should not be empty or null", exception.Message);
     }
