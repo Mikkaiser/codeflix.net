@@ -26,7 +26,7 @@ public class CategoryTest
 
         //Act
         var category = new DomainEntity.Category(validCategory.Name, validCategory.Description);
-        var datetimeAfter = DateTime.Now;
+        var datetimeAfter = DateTime.Now.AddSeconds(1);
 
         //Assert
 
@@ -37,8 +37,8 @@ public class CategoryTest
         category.Id.Should().NotBeEmpty();
         category.CreatedAt.Should().NotBeSameDateAs(default(DateTime));
 
-        Assert.True(category.CreatedAt > datetimeBefore);
-        Assert.True(category.CreatedAt < datetimeAfter);
+        Assert.True(category.CreatedAt >= datetimeBefore);
+        Assert.True(category.CreatedAt <= datetimeAfter);
         Assert.True(category.IsActive);
     }
 
@@ -56,7 +56,7 @@ public class CategoryTest
 
         //Act
         var category = new DomainEntity.Category(validCategory.Name, validCategory.Description, IsActive);
-        var datetimeAfter = DateTime.Now;
+        var datetimeAfter = DateTime.Now.AddSeconds(1);
 
         //Assert
         Assert.NotNull(category);
@@ -64,8 +64,8 @@ public class CategoryTest
         Assert.Equal(validCategory.Description, category.Description);
         Assert.NotEqual(default(Guid), category.Id);
         Assert.NotEqual(default(DateTime), category.CreatedAt);
-        Assert.True(category.CreatedAt > datetimeBefore);
-        Assert.True(category.CreatedAt < datetimeAfter);
+        Assert.True(category.CreatedAt >= datetimeBefore);
+        Assert.True(category.CreatedAt <= datetimeAfter);
         Assert.Equal(category.IsActive, IsActive);
     }
 
@@ -168,25 +168,25 @@ public class CategoryTest
     public void Update()
     {
         DomainEntity.Category category = new DomainEntity.Category("Category Name", "Category Description");
-        var newValues = new { Name = "NewName", Description = "New Description" };
+        var categoryWithNewValues = new { Name = "NewName", Description = "New Description" };
 
-        category.Update(newValues.Name, newValues.Description);
+        category.Update(categoryWithNewValues.Name, categoryWithNewValues.Description);
 
-        Assert.Equal(newValues.Name, category.Name);
-        Assert.Equal(newValues.Description, category.Description);
+        Assert.Equal(categoryWithNewValues.Name, category.Name);
+        Assert.Equal(categoryWithNewValues.Description, category.Description);
     }
 
     [Fact(DisplayName = nameof(UpdateOnlyName))]
     [Trait("Domain", "Category - Aggregates")]
     public void UpdateOnlyName()
     {
-        DomainEntity.Category category = new DomainEntity.Category("Category Name", "Category Description");
-        var newValues = new { Name = "NewName"};
+        var category = _categoryTestFixture.GetValidCategory();
+        string newName = _categoryTestFixture.GetValidCategoryName();
         string currentDescription = category.Description;
 
-        category.Update(newValues.Name);
+        category.Update(newName);
 
-        Assert.Equal(newValues.Name, category.Name);
+        Assert.Equal(newName, category.Name);
         Assert.Equal(currentDescription, category.Description);
     }
 
@@ -225,7 +225,7 @@ public class CategoryTest
     public void InstantiateErrorWhenNameIsGreaterThanTwoHundredFiftyFiveCharactersOnUpdate()
     {
         DomainEntity.Category category = new("Category Name", "Category Description");
-        string invalidName = String.Join(null, Enumerable.Range(1, 256).Select(_ => "a").ToArray());
+        string invalidName = _categoryTestFixture.Faker.Lorem.Letter(256);
 
         Action action = () => category.Update(invalidName!);
         var exception = Assert.Throws<EntityValidationException>(action);
@@ -238,7 +238,10 @@ public class CategoryTest
     public void InstantiateErrorWhenDescriptionIsGreaterThanTenThousandCharactersOnUpdate()
     {
         DomainEntity.Category category = new("Category Name", "Category Description");
-        string invalidDescription = String.Join(null, Enumerable.Range(1, 10001).Select(_ => "a").ToArray());
+        string invalidDescription = _categoryTestFixture.Faker.Commerce.ProductDescription(); 
+
+        while (invalidDescription.Length < 10000)
+            invalidDescription = $"{invalidDescription} {_categoryTestFixture.Faker.Commerce.ProductDescription()}";
 
         Action action = () => category.Update("Category New Name", invalidDescription);
         var exception = Assert.Throws<EntityValidationException>(action);

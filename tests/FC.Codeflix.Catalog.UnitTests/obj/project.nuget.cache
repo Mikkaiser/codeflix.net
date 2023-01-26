@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "oybbMFc24bPeRsTlZMuW5fUrickkJ0BkglOsHUqpezMVoDNjpTm2MOhD5S9V3uvM/HTB+uNpkcnkR/PQ7Tl6fQ==",
+  "dgSpecHash": "33jOjGMnVNopjdiHPt2pFUuRZQRi7hZuUBFsneQVknhEIbCWoFd+XROH0tqv2UV0teIeI/GoShMk40FCvOMkog==",
   "success": true,
   "projectFilePath": "C:\\Users\\Mikkaiser\\source\\repos\\FC.Codeflix.Catalog\\tests\\FC.Codeflix.Catalog.UnitTests\\FC.Codeflix.Catalog.UnitTests.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\Mikkaiser\\.nuget\\packages\\bogus\\34.0.2\\bogus.34.0.2.nupkg.sha512",
     "C:\\Users\\Mikkaiser\\.nuget\\packages\\coverlet.collector\\3.1.2\\coverlet.collector.3.1.2.nupkg.sha512",
     "C:\\Users\\Mikkaiser\\.nuget\\packages\\fluentassertions\\6.9.0\\fluentassertions.6.9.0.nupkg.sha512",
     "C:\\Users\\Mikkaiser\\.nuget\\packages\\microsoft.codecoverage\\17.3.2\\microsoft.codecoverage.17.3.2.nupkg.sha512",
